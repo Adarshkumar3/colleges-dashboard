@@ -1,0 +1,32 @@
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #dddddd00;
+    }
+
+    th {
+        background-color: #fad890;
+        cursor: pointer;
+    }
+
+    .featured {
+        color: hsla(162, 100%, 73%, 0.979);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .loading {
+        text-align: center;
+    }
+
+    .sortable:hover {
+        cursor: pointer;
+    }

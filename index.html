@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colleges world</title>
+</head>
+<body>
+
+<input type="text" id="searchInput" placeholder="Search by College Name">
+
+<table id="collegesTable">
+    <thead>
+        <tr>
+            <th class="sortable" onclick="sortBy('rank')">Rank</th>
+            <th class="sortable" onclick="sortBy('name')">College Name</th>
+            <th class="sortable" onclick="sortBy('fees')">College Fees</th>
+            <th class="sortable" onclick="sortBy('placement')">Placement</th>
+            <th class="sortable" onclick="sortBy('userReview')">User Review</th>
+            <th class="sortable" onclick="sortBy('userRating')">User Rating</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Table rows will be dynamically added here -->
+    </tbody>
+</table>
+
+<div id="loadingIndicator" class="loading hidden">Loading...</div>
+
+<script>
+    let colleges = [
+        { rank: 1, name:"Indian Institute of Technology Bombay (IIT Bombay)" , fees: "Varies (Approximately INR 2-3 lakhs per year)", placement: "95%", userReview: "Excellent faculty and research opportunities.", userRating: 4.8},
+        { rank: 2, name:  "Indian Institute of Technology Delhi (IIT Delhi)", fees: "Varies (Approximately INR 2-3 lakhs per year)",placement: "96%", userReview: "Top-notch education and strong alumni network.", userRating: 4.7 },
+        { rank: 3, name:  "Indian Institute of Technology Madras (IIT Madras)", fees: "Varies (Approximately INR 2-3 lakhs per year)",placement: "94%", userReview:"Great blend of academics and extracurriculars.", userRating: 4.6 },
+        { rank: 4, name:  "Indian Institute of Technology Kanpur (IIT Kanpur)", fees: "Varies (Approximately INR 2-3 lakhs per year)",placement: "93%", userReview:  "Challenging curriculum with ample research opportunities.", userRating: 4.5 },
+        { rank: 5, name:  "Indian Institute of TechnologyKharagpur (IIT Kharagpur)", fees: "Varies (Approximately INR 2-3 lakhs per year)",placement: "92%", userReview:  "Rich legacy and diverse student community.", userRating: 4.4 },
+        { rank: 6, name:  "Indian Institute of Technology  Roorkee (IIT Roorkee)", fees: "Varies (Approximately INR 2-3 lakhs per year)",placement: "91%", userReview:  "Beautiful campus with strong academic programs.", userRating: 4.3 },
+        { rank: 7, name:  "Birla Institute of Technology and Science, Pilani (BITS Pilani)", fees: "Varies (Approximately INR 4-5 lakhs per year)",placement: "90%", userReview: "Great exposure to industry projects.", userRating: 4.2 },
+        { rank: 8, name:  "Delhi Technological University (DTU)", fees: "Varies (Approximately INR 1-2 lakhs per year)",placement: "88%", userReview:  "Good balance of academics and extracurricular activities.", userRating: 4.1 },
+        { rank: 9, name:  "National Institute of Technology Karnataka (NIT Karnataka)", fees: "Varies (Approximately INR 1-2 lakhs per year)",placement: "87%", userReview:  "Good infrastructure and supportive faculty.", userRating: 4.0 },
+        { rank: 10, name:  "National Institute of Technology Warangal (NIT Warangal)", fees: "Varies (Approximately INR 1-2 lakhs per year)",placement: "86%", userReview:  "Strong emphasis on practical learning.", userRating: 3.9 },
+        
+        
+    ];
+
+    let sortOrder = {
+        field: null,
+        asc: true
+    };
+
+    const pageSize = 10;
+    let currentPage = 1;
+
+    function renderTableRows(data) {
+        const tbody = document.querySelector('#collegesTable tbody');
+        tbody.innerHTML = '';
+
+        data.forEach(college => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${college.rank}</td>
+                <td>${college.name}</td>
+                <td>${college.fees}</td>
+                <td>${college.placement}</td>
+                <td>${college.userReview}</td>
+                <td>${college.userRating}</td>
+                <td class="${college.featured ? 'featured' : 'hidden'}">Featured</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function sortData(data, field, asc) {
+        return data.sort((a, b) => {
+            const valA = typeof a[field] === 'string' ? a[field].toUpperCase() : a[field];
+            const valB = typeof b[field] === 'string' ? b[field].toUpperCase() : b[field];
+            if (asc) {
+                return valA > valB ? 1 : -1;
+            } else {
+                return valA < valB ? 1 : -1;
+            }
+        });
+    }
+
+    function sortBy(field) {
+        if (sortOrder.field === field) {
+            sortOrder.asc = !sortOrder.asc;
+        } else {
+            sortOrder.field = field;
+            sortOrder.asc = true;
+        }
+
+        const sortedData = sortData(colleges, sortOrder.field, sortOrder.asc);
+        renderTableRows(sortedData.slice(0, pageSize));
+    }
+
+    function loadMoreData() {
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const newData = colleges.slice(start, end);
+        renderTableRows(newData);
+        currentPage++;
+
+        if (end >= colleges.length) {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            window.removeEventListener('scroll', scrollHandler);
+        }
+    }
+
+    function scrollHandler() {
+        const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 5 && currentPage <= Math.ceil(colleges.length / pageSize)) {
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            setTimeout(loadMoreData, 1000);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderTableRows(colleges.slice(0, pageSize));
+        currentPage++;
+        window.addEventListener('scroll', scrollHandler);
+    });
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchText = this.value.toLowerCase();
+        const filteredColleges = colleges.filter(college => college.name.toLowerCase().includes(searchText));
+        renderTableRows(filteredColleges.slice(0, pageSize));
+    });
+</script>
+
+</body>
+</html>
